@@ -1,0 +1,278 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard | CyberGuard ML{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    <!-- Hero Banner -->
+    <section class="hero-section">
+        <div class="hero-badge">
+            <span class="pulse-cyan"></span> CYBERSECURITY INTELLIGENCE PLATFORM
+        </div>
+        <h1 class="hero-title">
+            SMS Spam Detection & <span class="gradient-text">Malicious URL</span> Classification
+        </h1>
+        <p class="hero-subtitle">
+            An advanced Machine Learning defense suite combining Natural Language Processing (NLP) 
+            with lexical feature extraction to detect fraudulent SMS communications and flag suspicious web links.
+        </p>
+
+        <!-- Quick Launch CTA Bar -->
+        <div class="hero-actions">
+            <a href="{{ url_for('sms_detection') }}" class="btn btn-primary">
+                <i class="fa-solid fa-comment-sms"></i> Analyze SMS Message
+            </a>
+            <a href="{{ url_for('url_detection') }}" class="btn btn-secondary">
+                <i class="fa-solid fa-link"></i> Scan URL Link
+            </a>
+            <a href="{{ url_for('about') }}" class="btn btn-outline">
+                <i class="fa-solid fa-chart-line"></i> View ML Metrics
+            </a>
+        </div>
+    </section>
+
+    <!-- Top Statistical Metric Cards Grid -->
+    <section class="metrics-grid">
+        <!-- Card 1: SMS Analyzed -->
+        <div class="stat-card">
+            <div class="stat-header">
+                <span class="stat-icon icon-cyan"><i class="fa-solid fa-comment-dots"></i></span>
+                <span class="stat-pill">SMS AUDIT</span>
+            </div>
+            <div class="stat-value">{{ stats.total_sms }}</div>
+            <div class="stat-label">Total SMS Messages Analyzed</div>
+            <div class="stat-breakdown">
+                <div class="breakdown-item">
+                    <span class="dot dot-danger"></span>
+                    <span class="breakdown-label">Spam:</span>
+                    <span class="breakdown-val text-danger">{{ stats.sms_spam }}</span>
+                </div>
+                <div class="breakdown-item">
+                    <span class="dot dot-success"></span>
+                    <span class="breakdown-label">Legitimate (Ham):</span>
+                    <span class="breakdown-val text-success">{{ stats.sms_ham }}</span>
+                </div>
+            </div>
+            <div class="stat-bar-container">
+                <div class="stat-bar-fill fill-danger" style="width: {{ stats.sms_spam_rate }}%;"></div>
+            </div>
+            <div class="stat-bar-caption">{{ stats.sms_spam_rate }}% Spam Ratio</div>
+        </div>
+
+        <!-- Card 2: URLs Scanned -->
+        <div class="stat-card">
+            <div class="stat-header">
+                <span class="stat-icon icon-blue"><i class="fa-solid fa-shield-virus"></i></span>
+                <span class="stat-pill">URL AUDIT</span>
+            </div>
+            <div class="stat-value">{{ stats.total_urls }}</div>
+            <div class="stat-label">Total URLs Scanned</div>
+            <div class="stat-breakdown">
+                <div class="breakdown-item">
+                    <span class="dot dot-danger"></span>
+                    <span class="breakdown-label">Malicious:</span>
+                    <span class="breakdown-val text-danger">{{ stats.url_malicious }}</span>
+                </div>
+                <div class="breakdown-item">
+                    <span class="dot dot-success"></span>
+                    <span class="breakdown-label">Legitimate:</span>
+                    <span class="breakdown-val text-success">{{ stats.url_legitimate }}</span>
+                </div>
+            </div>
+            <div class="stat-bar-container">
+                <div class="stat-bar-fill fill-warning" style="width: {{ stats.url_malicious_rate }}%;"></div>
+            </div>
+            <div class="stat-bar-caption">{{ stats.url_malicious_rate }}% Malicious Ratio</div>
+        </div>
+
+        <!-- Card 3: Total Threats Intercepted -->
+        <div class="stat-card">
+            <div class="stat-header">
+                <span class="stat-icon icon-pink"><i class="fa-solid fa-triangle-exclamation"></i></span>
+                <span class="stat-pill">THREAT RADAR</span>
+            </div>
+            <div class="stat-value text-danger">{{ stats.total_threats }}</div>
+            <div class="stat-label">Total Threats Detected</div>
+            <div class="stat-breakdown">
+                <div class="breakdown-item">
+                    <span class="dot dot-success"></span>
+                    <span class="breakdown-label">Safe Records:</span>
+                    <span class="breakdown-val text-success">{{ stats.total_safe }}</span>
+                </div>
+                <div class="breakdown-item">
+                    <span class="dot dot-cyan"></span>
+                    <span class="breakdown-label">Total Lifetime:</span>
+                    <span class="breakdown-val text-cyan">{{ stats.total_scans }}</span>
+                </div>
+            </div>
+            <div class="stat-status-badge">
+                <i class="fa-solid fa-circle-check text-success"></i> Real-time Database Sync
+            </div>
+        </div>
+
+        <!-- Card 4: Model Engine Pipeline Status -->
+        <div class="stat-card">
+            <div class="stat-header">
+                <span class="stat-icon icon-emerald"><i class="fa-solid fa-microchip"></i></span>
+                <span class="stat-pill">ENGINE STATUS</span>
+            </div>
+            <div class="stat-value text-cyan">ACTIVE</div>
+            <div class="stat-label">Machine Learning Engines</div>
+            <div class="engine-list">
+                <div class="engine-row">
+                    <span class="engine-name"><i class="fa-solid fa-check text-success"></i> SMS NLP Pipeline</span>
+                    <span class="badge-tag">TF-IDF + Naive Bayes</span>
+                </div>
+                <div class="engine-row">
+                    <span class="engine-name"><i class="fa-solid fa-check text-success"></i> URL Lexical Parser</span>
+                    <span class="badge-tag">9-Feature RF Engine</span>
+                </div>
+            </div>
+            <div class="stat-status-badge">
+                <i class="fa-solid fa-lock text-cyan"></i> 100% Offline Static Analysis
+            </div>
+        </div>
+    </section>
+
+    <!-- Main Operational Modules Section -->
+    <section class="modules-section">
+        <div class="section-header">
+            <h2><i class="fa-solid fa-terminal text-cyan"></i> Core Detection Engines</h2>
+            <p>Select a specialized scanner to inspect suspicious SMS content or unknown hyperlinks.</p>
+        </div>
+
+        <div class="action-cards-grid">
+            <!-- SMS Detector Action Card -->
+            <div class="action-card">
+                <div class="action-card-glow"></div>
+                <div class="action-card-header">
+                    <div class="action-icon icon-cyan">
+                        <i class="fa-solid fa-comment-sms"></i>
+                    </div>
+                    <span class="action-badge">NLP CLASSIFIER</span>
+                </div>
+                <h3 class="action-title">SMS Spam & Smishing Detector</h3>
+                <p class="action-desc">
+                    Employs Term Frequency-Inverse Document Frequency (TF-IDF) n-grams and Multinomial Naive Bayes 
+                    to uncover prize scams, bank impersonations, urgent OTP phishing, and malicious solicitation.
+                </p>
+                <div class="action-features">
+                    <span><i class="fa-solid fa-check"></i> Sublinear TF-IDF vectorization</span>
+                    <span><i class="fa-solid fa-check"></i> Spam keyword & trigger extraction</span>
+                    <span><i class="fa-solid fa-check"></i> High-precision probabilistic scoring</span>
+                </div>
+                <a href="{{ url_for('sms_detection') }}" class="btn btn-action">
+                    Launch SMS Scanner <i class="fa-solid fa-arrow-right"></i>
+                </a>
+            </div>
+
+            <!-- URL Scanner Action Card -->
+            <div class="action-card">
+                <div class="action-card-glow"></div>
+                <div class="action-card-header">
+                    <div class="action-icon icon-blue">
+                        <i class="fa-solid fa-link"></i>
+                    </div>
+                    <span class="action-badge">LEXICAL ENGINE</span>
+                </div>
+                <h3 class="action-title">Malicious URL & Phishing Classifier</h3>
+                <p class="action-desc">
+                    Extracts 9 structural and lexical features from URL strings without ever visiting or pinging the remote host.
+                    Evaluates IPv4 presence, subdomain depth, keyword manipulation, and abnormal syntactical markers.
+                </p>
+                <div class="action-features">
+                    <span><i class="fa-solid fa-check"></i> 9-point structural feature extraction</span>
+                    <span><i class="fa-solid fa-check"></i> Zero-network SSRF defense</span>
+                    <span><i class="fa-solid fa-check"></i> Risk-tiered security warnings</span>
+                </div>
+                <a href="{{ url_for('url_detection') }}" class="btn btn-action">
+                    Launch URL Scanner <i class="fa-solid fa-arrow-right"></i>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Recent Scans Activity Feed -->
+    <section class="recent-scans-section">
+        <div class="section-header space-between">
+            <div>
+                <h2><i class="fa-solid fa-clock-rotate-left text-cyan"></i> Recent Scan Activity</h2>
+                <p>Audited records of recently analyzed communications and links.</p>
+            </div>
+            <a href="{{ url_for('history') }}" class="btn btn-sm btn-outline">
+                View Full Audit Log <i class="fa-solid fa-chevron-right"></i>
+            </a>
+        </div>
+
+        {% if recent_scans %}
+            <div class="table-responsive">
+                <table class="cyber-table">
+                    <thead>
+                        <tr>
+                            <th>Type</th>
+                            <th>Submitted Content</th>
+                            <th>Prediction</th>
+                            <th>Confidence</th>
+                            <th>Risk Level</th>
+                            <th>Timestamp</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for scan in recent_scans %}
+                            <tr>
+                                <td>
+                                    {% if scan.scan_type == 'SMS' %}
+                                        <span class="badge-type badge-sms"><i class="fa-solid fa-comment"></i> SMS</span>
+                                    {% else %}
+                                        <span class="badge-type badge-url"><i class="fa-solid fa-link"></i> URL</span>
+                                    {% endif %}
+                                </td>
+                                <td class="content-cell">
+                                    <span class="content-preview font-mono" title="{{ scan.input_content }}">
+                                        {{ scan.input_content[:70] }}{% if scan.input_content|length > 70 %}...{% endif %}
+                                    </span>
+                                </td>
+                                <td>
+                                    {% if scan.is_threat %}
+                                        <span class="badge-status badge-threat">
+                                            <i class="fa-solid fa-triangle-exclamation"></i> {{ scan.prediction }}
+                                        </span>
+                                    {% else %}
+                                        <span class="badge-status badge-safe">
+                                            <i class="fa-solid fa-circle-check"></i> {{ scan.prediction }}
+                                        </span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <div class="confidence-pill">
+                                        <span class="conf-num">{{ scan.confidence }}%</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="badge-risk risk-{{ (scan.risk_level or 'Low')|lower }}">
+                                        {{ scan.risk_level or 'Normal' }}
+                                    </span>
+                                </td>
+                                <td class="time-cell text-muted">
+                                    {{ scan.created_at }}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="empty-state">
+                <div class="empty-icon"><i class="fa-solid fa-inbox"></i></div>
+                <h3>No scans logged yet</h3>
+                <p>Use the buttons above to scan an SMS message or classify a URL link.</p>
+                <div class="empty-actions">
+                    <a href="{{ url_for('sms_detection') }}" class="btn btn-sm btn-primary">Try SMS Scan</a>
+                    <a href="{{ url_for('url_detection') }}" class="btn btn-sm btn-secondary">Try URL Scan</a>
+                </div>
+            </div>
+        {% endif %}
+    </section>
+</div>
+{% endblock %}
+

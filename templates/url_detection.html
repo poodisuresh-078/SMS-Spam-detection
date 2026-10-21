@@ -1,0 +1,334 @@
+{% extends "base.html" %}
+
+{% block title %}Malicious URL Classification | CyberGuard ML{% endblock %}
+
+{% block content %}
+<div class="scanner-page-container">
+    <!-- Header -->
+    <div class="page-header">
+        <div class="header-icon icon-blue">
+            <i class="fa-solid fa-link"></i>
+        </div>
+        <div class="header-text">
+            <h1 class="page-title">Malicious URL & Phishing Classification</h1>
+            <p class="page-subtitle">
+                Inspect suspicious web addresses using offline lexical and syntactical analysis.
+                Classifies hyperlinks as Legitimate or Potentially Malicious without ever contacting the target host.
+            </p>
+        </div>
+    </div>
+
+    <!-- Security Isolation Banner -->
+    <div class="safety-banner">
+        <div class="safety-icon"><i class="fa-solid fa-shield-halved"></i></div>
+        <div class="safety-content">
+            <strong>SAFE AIR-GAPPED EVALUATION:</strong> Submitted URLs are parsed strictly as offline strings.
+            The server does <em>not</em> issue HTTP requests, resolve DNS records, or execute remote payloads.
+        </div>
+    </div>
+
+    <!-- Quick Test Samples Toolbar -->
+    <div class="quick-samples-card">
+        <div class="samples-title">
+            <i class="fa-solid fa-bolt text-cyan"></i> <span>Quick Test Presets (Click to load sample URL):</span>
+        </div>
+        <div class="samples-buttons">
+            <button type="button" class="sample-btn sample-spam" 
+                data-text="http://192.168.1.100/paypal-login/verification-update.php">
+                <i class="fa-solid fa-triangle-exclamation"></i> Raw IP Phishing
+            </button>
+            <button type="button" class="sample-btn sample-spam" 
+                data-text="http://paypal-security-verification-center.update.account-secure.xyz/login">
+                <i class="fa-solid fa-triangle-exclamation"></i> Keyword & Subdomain Stacking
+            </button>
+            <button type="button" class="sample-btn sample-spam" 
+                data-text="http://wellsfargo-online-banking-urgent-verify.top/signin.php?token=9281">
+                <i class="fa-solid fa-triangle-exclamation"></i> Fake Banking Login
+            </button>
+            <button type="button" class="sample-btn sample-ham" 
+                data-text="https://www.wikipedia.org/wiki/Artificial_intelligence">
+                <i class="fa-solid fa-check"></i> Legitimate (Wikipedia)
+            </button>
+            <button type="button" class="sample-btn sample-ham" 
+                data-text="https://github.com/scikit-learn/scikit-learn">
+                <i class="fa-solid fa-check"></i> Legitimate (GitHub)
+            </button>
+        </div>
+    </div>
+
+    <!-- Scanner Input Form -->
+    <div class="scanner-card">
+        <form method="POST" action="{{ url_for('url_detection') }}" id="urlForm">
+            <div class="form-group">
+                <label for="urlInput" class="form-label">
+                    <span>Target URL Address</span>
+                    <span class="text-muted"><i class="fa-solid fa-lock"></i> Offline Lexical Inspection</span>
+                </label>
+                <div class="input-with-icon">
+                    <span class="input-icon"><i class="fa-solid fa-globe"></i></span>
+                    <input 
+                        type="text" 
+                        name="url" 
+                        id="urlInput" 
+                        class="form-control cyber-input font-mono" 
+                        placeholder="Enter URL to inspect (e.g. http://192.168.1.1/login or https://example.com/docs)"
+                        value="{{ input_url }}"
+                        required>
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button type="button" class="btn btn-outline" id="clearUrlBtn">
+                    <i class="fa-solid fa-eraser"></i> Clear
+                </button>
+                <button type="submit" class="btn btn-secondary btn-lg" id="predictUrlBtn">
+                    <i class="fa-solid fa-shield-virus"></i> Classify URL
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Prediction Results Section -->
+    {% if result %}
+        <div class="result-section" id="urlResultContainer">
+            <div class="result-card {% if result.is_malicious %}result-threat{% else %}result-safe{% endif %}">
+                <!-- Result Header -->
+                <div class="result-header">
+                    <div class="result-badge-container">
+                        {% if result.is_malicious %}
+                            <div class="result-icon-threat">
+                                <i class="fa-solid fa-triangle-exclamation"></i>
+                            </div>
+                            <div>
+                                <span class="result-tag-threat">HIGH RISK DESTINATION</span>
+                                <h2 class="result-heading text-danger">POTENTIALLY MALICIOUS URL</h2>
+                            </div>
+                        {% else %}
+                            <div class="result-icon-safe">
+                                <i class="fa-solid fa-shield-check"></i>
+                            </div>
+                            <div>
+                                <span class="result-tag-safe">BENIGN REPUTATION</span>
+                                <h2 class="result-heading text-success">LEGITIMATE URL</h2>
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Confidence Gauge & Risk Tier -->
+                    <div class="confidence-box">
+                        <div class="conf-title">Confidence & Risk Tier</div>
+                        <div class="risk-tier-pill risk-{{ result.risk_level|lower }}">
+                            Risk Level: {{ result.risk_level }}
+                        </div>
+                        <div class="conf-percentage">{{ result.confidence }}%</div>
+                        <div class="conf-meter-track">
+                            <div class="conf-meter-bar {% if result.is_malicious %}fill-danger{% else %}fill-success{% endif %}" 
+                                 style="width: {{ result.confidence }}%;"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Evaluated URL Box -->
+                <div class="analyzed-text-card">
+                    <div class="analyzed-label"><i class="fa-solid fa-link"></i> Evaluated URL String:</div>
+                    <div class="analyzed-quote font-mono">{{ result.url }}</div>
+                </div>
+
+                <!-- Threat Warnings Banner (if any) -->
+                {% if result.warnings %}
+                    <div class="threat-warnings-card">
+                        <div class="warnings-title">
+                            <i class="fa-solid fa-triangle-exclamation text-danger"></i> Suspicious Lexical Anomalies Flagged:
+                        </div>
+                        <ul class="warnings-list">
+                            {% for warning in result.warnings %}
+                                <li><i class="fa-solid fa-circle-xmark text-danger"></i> {{ warning }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                {% endif %}
+
+                <!-- 9 Lexical Features Breakdown Section -->
+                <div class="features-breakdown-section">
+                    <h3 class="features-title">
+                        <i class="fa-solid fa-list-check text-cyan"></i> 9 Extracted Lexical & Structural Features
+                    </h3>
+                    <p class="features-subtitle">
+                        These numerical and boolean features were extracted via static string parsing and fed to the Machine Learning classifier.
+                    </p>
+
+                    <div class="features-table-container">
+                        <table class="cyber-table features-table">
+                            <thead>
+                                <tr>
+                                    <th>Feature Name</th>
+                                    <th>Extracted Value</th>
+                                    <th>Security Interpretation</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- 1. URL Length -->
+                                <tr>
+                                    <td><strong>1. URL Length</strong></td>
+                                    <td class="font-mono">{{ result.features.url_length }} chars</td>
+                                    <td>Total character length of the complete URL string.</td>
+                                    <td>
+                                        {% if result.features.url_length > 75 %}
+                                            <span class="badge-pill pill-warning">Abnormal (>75)</span>
+                                        {% else %}
+                                            <span class="badge-pill pill-success">Normal</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+
+                                <!-- 2. Number of Dots -->
+                                <tr>
+                                    <td><strong>2. Dot Count (.)</strong></td>
+                                    <td class="font-mono">{{ result.features.num_dots }}</td>
+                                    <td>Count of period characters. High counts often signal multi-level domain spoofing.</td>
+                                    <td>
+                                        {% if result.features.num_dots >= 4 %}
+                                            <span class="badge-pill pill-danger">High (&ge;4)</span>
+                                        {% else %}
+                                            <span class="badge-pill pill-success">Normal</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+
+                                <!-- 3. Number of Hyphens -->
+                                <tr>
+                                    <td><strong>3. Hyphen Count (-)</strong></td>
+                                    <td class="font-mono">{{ result.features.num_hyphens }}</td>
+                                    <td>Hyphens are frequently used in typo-squatting (e.g., paypal-security-update).</td>
+                                    <td>
+                                        {% if result.features.num_hyphens >= 3 %}
+                                            <span class="badge-pill pill-danger">High (&ge;3)</span>
+                                        {% elif result.features.num_hyphens > 0 %}
+                                            <span class="badge-pill pill-warning">Present</span>
+                                        {% else %}
+                                            <span class="badge-pill pill-success">None</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+
+                                <!-- 4. Number of Digits -->
+                                <tr>
+                                    <td><strong>4. Digit Count (0-9)</strong></td>
+                                    <td class="font-mono">{{ result.features.num_digits }}</td>
+                                    <td>Excessive digits in hostnames frequently indicate automated phishing generation.</td>
+                                    <td>
+                                        {% if result.features.num_digits > 10 %}
+                                            <span class="badge-pill pill-warning">Elevated</span>
+                                        {% else %}
+                                            <span class="badge-pill pill-neutral">Standard</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+
+                                <!-- 5. Presence of IP Address -->
+                                <tr>
+                                    <td><strong>5. IP Address Present</strong></td>
+                                    <td class="font-mono">
+                                        {% if result.features.has_ip == 1 %}IPv4 Detected{% else %}None (Domain Used){% endif %}
+                                    </td>
+                                    <td>Legitimate organizations use registered domain names. Raw IPs are a high-risk indicator.</td>
+                                    <td>
+                                        {% if result.features.has_ip == 1 %}
+                                            <span class="badge-pill pill-danger"><i class="fa-solid fa-triangle-exclamation"></i> High Risk (IP)</span>
+                                        {% else %}
+                                            <span class="badge-pill pill-success"><i class="fa-solid fa-check"></i> Clean</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+
+                                <!-- 6. HTTPS Protocol Usage -->
+                                <tr>
+                                    <td><strong>6. HTTPS Encryption</strong></td>
+                                    <td class="font-mono">
+                                        {% if result.features.is_https == 1 %}HTTPS (Secure Scheme){% else %}HTTP (Unencrypted){% endif %}
+                                    </td>
+                                    <td>Verifies whether modern transport-layer security is configured on the link.</td>
+                                    <td>
+                                        {% if result.features.is_https == 1 %}
+                                            <span class="badge-pill pill-success"><i class="fa-solid fa-lock"></i> HTTPS</span>
+                                        {% else %}
+                                            <span class="badge-pill pill-danger"><i class="fa-solid fa-unlock"></i> Insecure HTTP</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+
+                                <!-- 7. Suspicious Characters -->
+                                <tr>
+                                    <td><strong>7. Suspicious Characters</strong></td>
+                                    <td class="font-mono">{{ result.features.num_suspicious_chars }} (@, //, ~, %, =, ?, &)</td>
+                                    <td>Detects user-info '@' redirection tricks, encoded characters, and chained query flags.</td>
+                                    <td>
+                                        {% if result.features.num_suspicious_chars >= 4 %}
+                                            <span class="badge-pill pill-danger">High (&ge;4)</span>
+                                        {% else %}
+                                            <span class="badge-pill pill-neutral">Acceptable</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+
+                                <!-- 8. Suspicious Keywords -->
+                                <tr>
+                                    <td><strong>8. Phishing Keywords</strong></td>
+                                    <td class="font-mono">{{ result.features.has_suspicious_keyword }} detected</td>
+                                    <td>Occurrence of sensitive terms: login, verify, banking, secure, account, billing, wallet.</td>
+                                    <td>
+                                        {% if result.features.has_suspicious_keyword >= 2 %}
+                                            <span class="badge-pill pill-danger">&ge; 2 Keywords</span>
+                                        {% elif result.features.has_suspicious_keyword == 1 %}
+                                            <span class="badge-pill pill-warning">1 Keyword</span>
+                                        {% else %}
+                                            <span class="badge-pill pill-success">0 Keywords</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+
+                                <!-- 9. Number of Subdomains -->
+                                <tr>
+                                    <td><strong>9. Subdomain Depth</strong></td>
+                                    <td class="font-mono">{{ result.features.num_subdomains }} levels</td>
+                                    <td>Count of subdomain levels in host (e.g. login.verify.domain.com).</td>
+                                    <td>
+                                        {% if result.features.num_subdomains >= 3 %}
+                                            <span class="badge-pill pill-danger">Deep Spoof (&ge;3)</span>
+                                        {% else %}
+                                            <span class="badge-pill pill-success">Standard (&le;2)</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Disclaimer Box -->
+                <div class="safety-disclaimer-box">
+                    <div class="disclaimer-title">
+                        <i class="fa-solid fa-shield-cat text-cyan"></i> Security & Machine Learning Advisory:
+                    </div>
+                    <p class="disclaimer-text">
+                        {{ result.disclaimer }}
+                    </p>
+                </div>
+
+                <!-- Actions -->
+                <div class="result-actions">
+                    <button type="button" class="btn btn-outline" id="copyResultBtn" 
+                        data-copy="URL Classification: {{ result.prediction }} (Risk: {{ result.risk_level }}, Confidence: {{ result.confidence }}%). Target URL: {{ result.url }}">
+                        <i class="fa-solid fa-copy"></i> Copy Classification Report
+                    </button>
+                    <a href="{{ url_for('url_detection') }}" class="btn btn-secondary">
+                        <i class="fa-solid fa-rotate-right"></i> Scan Another URL
+                    </a>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
+

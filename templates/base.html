@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}SMS Spam & Malicious URL Classifier{% endblock %} | CyberGuard ML</title>
+    
+    <!-- Google Fonts: Inter & JetBrains Mono -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <!-- Custom Cyber Dark Theme Stylesheet -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    {% block extra_head %}{% endblock %}
+</head>
+<body>
+    <!-- Top Cyber Accent Bar -->
+    <div class="cyber-accent-line"></div>
+
+    <!-- Main Navigation Bar -->
+    <nav class="cyber-navbar">
+        <div class="nav-container">
+            <a href="{{ url_for('index') }}" class="nav-brand">
+                <span class="brand-icon"><i class="fa-solid fa-shield-halved"></i></span>
+                <span class="brand-text">Cyber<span class="text-cyan">Guard</span> <span class="brand-tag">ML</span></span>
+            </a>
+
+            <!-- Mobile Menu Toggle Button -->
+            <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation">
+                <i class="fa-solid fa-bars"></i>
+            </button>
+
+            <!-- Navigation Links -->
+            <div class="nav-menu" id="navMenu">
+                <a href="{{ url_for('index') }}" class="nav-link {% if request.endpoint == 'index' %}active{% endif %}">
+                    <i class="fa-solid fa-chart-pie"></i> Dashboard
+                </a>
+                <a href="{{ url_for('sms_detection') }}" class="nav-link {% if request.endpoint == 'sms_detection' %}active{% endif %}">
+                    <i class="fa-solid fa-comment-sms"></i> SMS Detector
+                </a>
+                <a href="{{ url_for('url_detection') }}" class="nav-link {% if request.endpoint == 'url_detection' %}active{% endif %}">
+                    <i class="fa-solid fa-link"></i> URL Scanner
+                </a>
+                <a href="{{ url_for('history') }}" class="nav-link {% if request.endpoint == 'history' %}active{% endif %}">
+                    <i class="fa-solid fa-clock-rotate-left"></i> Scan History
+                </a>
+                <a href="{{ url_for('about') }}" class="nav-link {% if request.endpoint == 'about' %}active{% endif %}">
+                    <i class="fa-solid fa-microchip"></i> About & Metrics
+                </a>
+            </div>
+
+            <!-- System Online Badge -->
+            <div class="nav-status">
+                <span class="status-dot"></span>
+                <span class="status-label">ML SHIELD ACTIVE</span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Flash Notifications Container -->
+    <div class="flash-container">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">
+                        <div class="alert-icon">
+                            {% if category == 'success' %}
+                                <i class="fa-solid fa-circle-check"></i>
+                            {% elif category == 'warning' %}
+                                <i class="fa-solid fa-triangle-exclamation"></i>
+                            {% elif category == 'danger' %}
+                                <i class="fa-solid fa-circle-xmark"></i>
+                            {% else %}
+                                <i class="fa-solid fa-circle-info"></i>
+                            {% endif %}
+                        </div>
+                        <div class="alert-content">{{ message }}</div>
+                        <button class="alert-close" onclick="this.parentElement.remove();">&times;</button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+    </div>
+
+    <!-- Main Content Block -->
+    <main class="main-wrapper">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="cyber-footer">
+        <div class="footer-container">
+            <div class="footer-top">
+                <div class="footer-brand">
+                    <div class="footer-logo">
+                        <i class="fa-solid fa-shield-halved text-cyan"></i>
+                        <span>CyberGuard ML Intelligence</span>
+                    </div>
+                    <p class="footer-desc">
+                        Dual-engine machine learning classifier for detecting SMS spam and classifying suspicious URLs.
+                        Built with Flask, Scikit-Learn, and Natural Language Processing.
+                    </p>
+                </div>
+
+                <div class="footer-links">
+                    <h4>Navigation</h4>
+                    <ul>
+                        <li><a href="{{ url_for('index') }}">Dashboard</a></li>
+                        <li><a href="{{ url_for('sms_detection') }}">SMS Spam Analysis</a></li>
+                        <li><a href="{{ url_for('url_detection') }}">URL Phishing Scanner</a></li>
+                        <li><a href="{{ url_for('history') }}">Scan Audit History</a></li>
+                        <li><a href="{{ url_for('about') }}">Architecture & Metrics</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer-security">
+                    <h4><i class="fa-solid fa-lock text-cyan"></i> Security & Safety Rules</h4>
+                    <p class="security-note">
+                        <strong>Zero-Execution Architecture:</strong> Submitted URLs are strictly parsed for lexical and syntactic
+                        properties offline. Remote hosts are <em>never visited, contacted, or executed</em>, ensuring complete defense
+                        against Server-Side Request Forgery (SSRF) and malicious payloads.
+                    </p>
+                </div>
+            </div>
+
+            <div class="footer-bottom">
+                <p>&copy; 2026 CyberGuard ML Project. Open-source educational & portfolio application.</p>
+                <div class="footer-badges">
+                    <span class="badge-tech"><i class="fa-brands fa-python"></i> Python 3</span>
+                    <span class="badge-tech"><i class="fa-solid fa-flask"></i> Flask</span>
+                    <span class="badge-tech"><i class="fa-solid fa-brain"></i> Scikit-Learn</span>
+                    <span class="badge-tech"><i class="fa-solid fa-database"></i> SQLite</span>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Main Javascript -->
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+    {% block extra_scripts %}{% endblock %}
+</body>
+</html>
+

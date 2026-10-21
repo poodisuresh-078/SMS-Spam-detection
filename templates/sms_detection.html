@@ -1,0 +1,194 @@
+{% extends "base.html" %}
+
+{% block title %}SMS Spam Detection | CyberGuard ML{% endblock %}
+
+{% block content %}
+<div class="scanner-page-container">
+    <!-- Header -->
+    <div class="page-header">
+        <div class="header-icon icon-cyan">
+            <i class="fa-solid fa-comment-sms"></i>
+        </div>
+        <div class="header-text">
+            <h1 class="page-title">SMS Spam & Fraud Detection</h1>
+            <p class="page-subtitle">
+                Enter an SMS message to detect whether it is unsolicited spam, smishing (phishing via SMS),
+                or genuine legitimate communication (Ham) using NLP and Naive Bayes machine learning.
+            </p>
+        </div>
+    </div>
+
+    <!-- Quick Test Samples Toolbar -->
+    <div class="quick-samples-card">
+        <div class="samples-title">
+            <i class="fa-solid fa-bolt text-cyan"></i> <span>Quick Test Presets (Click to load sample):</span>
+        </div>
+        <div class="samples-buttons">
+            <button type="button" class="sample-btn sample-spam" 
+                data-text="URGENT: Your Wells Fargo account has been suspended due to suspicious activity. Verify immediately at http://wellsfargo-security-alert.xyz to restore access.">
+                <i class="fa-solid fa-triangle-exclamation"></i> Bank Phishing Spam
+            </button>
+            <button type="button" class="sample-btn sample-spam" 
+                data-text="CONGRATULATIONS! You have won a $1,000 Walmart Gift Card! Claim your reward now at http://walmart-winner-claim2024.top before it expires today.">
+                <i class="fa-solid fa-gift"></i> Lottery Prize Scam
+            </button>
+            <button type="button" class="sample-btn sample-ham" 
+                data-text="Hey, are we still meeting for lunch at 12:30 PM today? Let me know if you want to invite Sarah too.">
+                <i class="fa-solid fa-check"></i> Lunch Meeting (Ham)
+            </button>
+            <button type="button" class="sample-btn sample-ham" 
+                data-text="The client presentation has been rescheduled to tomorrow at 10:00 AM in Conference Room B. Please bring your updated slide deck.">
+                <i class="fa-solid fa-check"></i> Work Notice (Ham)
+            </button>
+        </div>
+    </div>
+
+    <!-- Scanner Input Form -->
+    <div class="scanner-card">
+        <form method="POST" action="{{ url_for('sms_detection') }}" id="smsForm">
+            <div class="form-group">
+                <label for="smsMessage" class="form-label">
+                    <span>SMS Message Content</span>
+                    <span class="char-counter" id="smsCounter">0 characters | 0 words</span>
+                </label>
+                <textarea 
+                    name="message" 
+                    id="smsMessage" 
+                    class="form-control cyber-textarea" 
+                    rows="5" 
+                    placeholder="Paste or type the SMS message here (e.g., 'URGENT: Your card is blocked. Click here to verify...')"
+                    required>{{ input_text }}</textarea>
+            </div>
+
+            <div class="form-actions">
+                <button type="button" class="btn btn-outline" id="clearSmsBtn">
+                    <i class="fa-solid fa-eraser"></i> Clear Text
+                </button>
+                <button type="submit" class="btn btn-primary btn-lg" id="predictSmsBtn">
+                    <i class="fa-solid fa-wand-magic-sparkles"></i> Predict / Analyze SMS
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Prediction Results Section -->
+    {% if result %}
+        <div class="result-section" id="resultContainer">
+            <div class="result-card {% if result.is_spam %}result-threat{% else %}result-safe{% endif %}">
+                <!-- Result Header -->
+                <div class="result-header">
+                    <div class="result-badge-container">
+                        {% if result.is_spam %}
+                            <div class="result-icon-threat">
+                                <i class="fa-solid fa-shield-virus"></i>
+                            </div>
+                            <div>
+                                <span class="result-tag-threat">HIGH PROBABILITY THREAT</span>
+                                <h2 class="result-heading text-danger">SPAM / SMISHING DETECTED</h2>
+                            </div>
+                        {% else %}
+                            <div class="result-icon-safe">
+                                <i class="fa-solid fa-shield-check"></i>
+                            </div>
+                            <div>
+                                <span class="result-tag-safe">SAFE COMMUNICATION</span>
+                                <h2 class="result-heading text-success">HAM (LEGITIMATE SMS)</h2>
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Confidence Gauge -->
+                    <div class="confidence-box">
+                        <div class="conf-title">ML Model Confidence</div>
+                        <div class="conf-percentage">{{ result.confidence }}%</div>
+                        <div class="conf-meter-track">
+                            <div class="conf-meter-bar {% if result.is_spam %}fill-danger{% else %}fill-success{% endif %}" 
+                                 style="width: {{ result.confidence }}%;"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Evaluated Content Box -->
+                <div class="analyzed-text-card">
+                    <div class="analyzed-label"><i class="fa-solid fa-quote-left"></i> Analyzed Message:</div>
+                    <div class="analyzed-quote font-mono">{{ result.message }}</div>
+                </div>
+
+                <!-- Text Properties & Extracted Indicators Grid -->
+                <div class="indicators-grid">
+                    <div class="indicator-item">
+                        <span class="indicator-label">Character Length</span>
+                        <span class="indicator-value">{{ result.analysis.char_count }} chars</span>
+                    </div>
+                    <div class="indicator-item">
+                        <span class="indicator-label">Word Count</span>
+                        <span class="indicator-value">{{ result.analysis.word_count }} words</span>
+                    </div>
+                    <div class="indicator-item">
+                        <span class="indicator-label">Capital Letters</span>
+                        <span class="indicator-value">{{ result.analysis.capital_ratio }}%</span>
+                    </div>
+                    <div class="indicator-item">
+                        <span class="indicator-label">Hyperlink Detected</span>
+                        <span class="indicator-value">
+                            {% if result.analysis.has_url %}
+                                <span class="badge-pill pill-danger"><i class="fa-solid fa-triangle-exclamation"></i> Yes</span>
+                            {% else %}
+                                <span class="badge-pill pill-success"><i class="fa-solid fa-check"></i> No</span>
+                            {% endif %}
+                        </span>
+                    </div>
+                    <div class="indicator-item">
+                        <span class="indicator-label">Phone Pattern</span>
+                        <span class="indicator-value">
+                            {% if result.analysis.has_phone %}
+                                <span class="badge-pill pill-warning">Detected</span>
+                            {% else %}
+                                <span class="badge-pill pill-neutral">None</span>
+                            {% endif %}
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Detected Keywords Section -->
+                {% if result.analysis.found_triggers %}
+                    <div class="triggers-box">
+                        <div class="triggers-title">
+                            <i class="fa-solid fa-fire text-danger"></i> High-Risk Spam Keywords Detected:
+                        </div>
+                        <div class="triggers-list">
+                            {% for kw in result.analysis.found_triggers %}
+                                <span class="trigger-badge">{{ kw }}</span>
+                            {% endfor %}
+                        </div>
+                    </div>
+                {% endif %}
+
+                <!-- Model Decision Insights -->
+                <div class="insights-box">
+                    <div class="insights-title">
+                        <i class="fa-solid fa-circle-nodes text-cyan"></i> Classifier Insights & Reasoning:
+                    </div>
+                    <ul class="insights-list">
+                        {% for reason in result.reasons %}
+                            <li><i class="fa-solid fa-angle-right text-cyan"></i> {{ reason }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+
+                <!-- Result Actions Footer -->
+                <div class="result-actions">
+                    <button type="button" class="btn btn-outline" id="copyResultBtn" 
+                        data-copy="SMS Analysis Result: {{ result.prediction }} ({{ result.confidence }}% confidence). Content: {{ result.message }}">
+                        <i class="fa-solid fa-copy"></i> Copy Analysis Summary
+                    </button>
+                    <a href="{{ url_for('sms_detection') }}" class="btn btn-secondary">
+                        <i class="fa-solid fa-rotate-right"></i> Scan Another SMS
+                    </a>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
+

@@ -1,0 +1,278 @@
+{% extends "base.html" %}
+
+{% block title %}About & ML Architecture | CyberGuard ML{% endblock %}
+
+{% block content %}
+<div class="about-page-container">
+    <!-- Header -->
+    <div class="page-header">
+        <div class="header-icon icon-emerald">
+            <i class="fa-solid fa-microchip"></i>
+        </div>
+        <div class="header-text">
+            <h1 class="page-title">Machine Learning Architecture & Metrics</h1>
+            <p class="page-subtitle">
+                Comprehensive technical overview of the Natural Language Processing (NLP) pipeline, 
+                URL lexical feature engineering, model evaluation benchmarks, and defensive security guarantees.
+            </p>
+        </div>
+    </div>
+
+    <!-- Technology Stack Showcase -->
+    <section class="about-section">
+        <div class="section-badge"><i class="fa-solid fa-layer-group"></i> SYSTEM STACK</div>
+        <h2 class="section-heading">Integrated Technologies & Frameworks</h2>
+        
+        <div class="tech-stack-grid">
+            <div class="tech-card">
+                <div class="tech-icon"><i class="fa-brands fa-python text-cyan"></i></div>
+                <h4>Python 3.14</h4>
+                <p>Core programming language powering the machine learning pipelines and lexical parsers.</p>
+            </div>
+            <div class="tech-card">
+                <div class="tech-icon"><i class="fa-solid fa-flask text-blue"></i></div>
+                <h4>Flask Backend</h4>
+                <p>Lightweight WSGI web server orchestrating routing, REST APIs, and SQLite database sessions.</p>
+            </div>
+            <div class="tech-card">
+                <div class="tech-icon"><i class="fa-solid fa-brain text-pink"></i></div>
+                <h4>Scikit-Learn</h4>
+                <p>Industry-standard ML toolkit providing TF-IDF vectorization, Multinomial Naive Bayes, and Random Forest.</p>
+            </div>
+            <div class="tech-card">
+                <div class="tech-icon"><i class="fa-solid fa-chart-line text-emerald"></i></div>
+                <h4>Matplotlib</h4>
+                <p>Generates high-resolution confusion matrix visualizations and statistical performance plots.</p>
+            </div>
+            <div class="tech-card">
+                <div class="tech-icon"><i class="fa-solid fa-database text-cyan"></i></div>
+                <h4>SQLite Database</h4>
+                <p>Zero-configuration embedded relational database persisting scan logs, timestamps, and classifications.</p>
+            </div>
+            <div class="tech-card">
+                <div class="tech-icon"><i class="fa-brands fa-html5 text-danger"></i></div>
+                <h4>Modern Web UI</h4>
+                <p>Responsive, accessible interface styled with custom cyber dark CSS and interactive JavaScript.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Machine Learning Models & Metrics -->
+    <section class="about-section">
+        <div class="section-badge"><i class="fa-solid fa-square-poll-vertical"></i> EVALUATION BENCHMARKS</div>
+        <h2 class="section-heading">Model Performance & Validation</h2>
+
+        <div class="models-comparison-grid">
+            <!-- SMS Model Details -->
+            <div class="model-detail-card">
+                <div class="model-badge badge-sms">SMS NLP CLASSIFIER</div>
+                <h3>Multinomial Naive Bayes + TF-IDF</h3>
+                <p class="model-summary">
+                    Trained on labeled SMS messages using unigrams and bigrams (ngram_range=(1,2)), 
+                    sublinear term-frequency scaling, and Laplacian smoothing (&alpha;=0.1).
+                </p>
+
+                <div class="metrics-table-wrapper">
+                    <table class="cyber-table-sm">
+                        <thead>
+                            <tr>
+                                <th>Evaluation Metric</th>
+                                <th>Test Set Score</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Accuracy</td>
+                                <td class="metric-score text-cyan">{{ (sms_metrics.accuracy * 100)|round(2) }}%</td>
+                            </tr>
+                            <tr>
+                                <td>Precision</td>
+                                <td class="metric-score text-cyan">{{ (sms_metrics.precision * 100)|round(2) }}%</td>
+                            </tr>
+                            <tr>
+                                <td>Recall</td>
+                                <td class="metric-score text-cyan">{{ (sms_metrics.recall * 100)|round(2) }}%</td>
+                            </tr>
+                            <tr>
+                                <td>F1-Score</td>
+                                <td class="metric-score text-cyan">{{ (sms_metrics.f1_score * 100)|round(2) }}%</td>
+                            </tr>
+                            <tr>
+                                <td>Train / Test Split</td>
+                                <td class="font-mono text-muted">80% / 20% Stratified</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Confusion Matrix Image -->
+                <div class="cm-card">
+                    <div class="cm-header">
+                        <i class="fa-solid fa-chart-simple text-cyan"></i> SMS Confusion Matrix Plot
+                    </div>
+                    <div class="cm-image-container">
+                        <img src="{{ url_for('static', filename='images/sms_confusion_matrix.png') }}" 
+                             alt="SMS Confusion Matrix" 
+                             class="cm-image"
+                             onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                        <div class="cm-fallback" style="display: none;">
+                            <p class="text-muted"><i class="fa-solid fa-triangle-exclamation"></i> Plot will appear upon running <code>python train_sms_model.py</code></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- URL Model Details -->
+            <div class="model-detail-card">
+                <div class="model-badge badge-url">URL LEXICAL CLASSIFIER</div>
+                <h3>Random Forest Classifier (120 Trees)</h3>
+                <p class="model-summary">
+                    Ensemble classifier operating across 9 structural and lexical URL dimensions.
+                    Identifies complex non-linear combinations of subdomains, keyword manipulation, and anomalous syntax.
+                </p>
+
+                <div class="metrics-table-wrapper">
+                    <table class="cyber-table-sm">
+                        <thead>
+                            <tr>
+                                <th>Evaluation Metric</th>
+                                <th>Test Set Score</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Accuracy</td>
+                                <td class="metric-score text-blue">{{ (url_metrics.accuracy * 100)|round(2) }}%</td>
+                            </tr>
+                            <tr>
+                                <td>Precision</td>
+                                <td class="metric-score text-blue">{{ (url_metrics.precision * 100)|round(2) }}%</td>
+                            </tr>
+                            <tr>
+                                <td>Recall</td>
+                                <td class="metric-score text-blue">{{ (url_metrics.recall * 100)|round(2) }}%</td>
+                            </tr>
+                            <tr>
+                                <td>F1-Score</td>
+                                <td class="metric-score text-blue">{{ (url_metrics.f1_score * 100)|round(2) }}%</td>
+                            </tr>
+                            <tr>
+                                <td>Train / Test Split</td>
+                                <td class="font-mono text-muted">80% / 20% Stratified</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Confusion Matrix Image -->
+                <div class="cm-card">
+                    <div class="cm-header">
+                        <i class="fa-solid fa-chart-simple text-blue"></i> URL Confusion Matrix Plot
+                    </div>
+                    <div class="cm-image-container">
+                        <img src="{{ url_for('static', filename='images/url_confusion_matrix.png') }}" 
+                             alt="URL Confusion Matrix" 
+                             class="cm-image"
+                             onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                        <div class="cm-fallback" style="display: none;">
+                            <p class="text-muted"><i class="fa-solid fa-triangle-exclamation"></i> Plot will appear upon running <code>python train_url_model.py</code></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Lexical Feature Engineering Deep-Dive -->
+    <section class="about-section">
+        <div class="section-badge"><i class="fa-solid fa-microscope"></i> FEATURE ENGINEERING</div>
+        <h2 class="section-heading">The 9 Lexical URL Extraction Features</h2>
+        <p class="section-desc">
+            To eliminate network vulnerabilities such as SSRF and remote exploits, the URL classification engine 
+            analyzes web addresses strictly through static lexical parsing:
+        </p>
+
+        <div class="features-grid-3col">
+            <div class="feature-card">
+                <span class="feat-num">01</span>
+                <h4>URL Length</h4>
+                <p>Phishing URLs frequently use elongated paths to conceal true destination domains or pass extensive tracking parameters.</p>
+            </div>
+            <div class="feature-card">
+                <span class="feat-num">02</span>
+                <h4>Dot Count (.)</h4>
+                <p>Measures period delimiters. Attackers stack subdomains (e.g. <code>paypal.com.verify-user.top</code>) to deceive victims.</p>
+            </div>
+            <div class="feature-card">
+                <span class="feat-num">03</span>
+                <h4>Hyphen Count (-)</h4>
+                <p>Hyphens are rarely used in authentic root brands, but frequently appear in typo-squatting domains (e.g. <code>apple-id-login</code>).</p>
+            </div>
+            <div class="feature-card">
+                <span class="feat-num">04</span>
+                <h4>Digit Count (0-9)</h4>
+                <p>Automated phishing kits and algorithmically generated domains (DGAs) incorporate numerous digits into hostnames.</p>
+            </div>
+            <div class="feature-card">
+                <span class="feat-num">05</span>
+                <h4>Presence of IP Address</h4>
+                <p>Legitimate organizations rarely host production consumer services on raw IPv4 addresses without a domain name.</p>
+            </div>
+            <div class="feature-card">
+                <span class="feat-num">06</span>
+                <h4>HTTPS Usage</h4>
+                <p>Verifies whether the address uses secure transport encryption (HTTPS) or legacy, unencrypted HTTP transmission.</p>
+            </div>
+            <div class="feature-card">
+                <span class="feat-num">07</span>
+                <h4>Suspicious Characters</h4>
+                <p>Quantifies special tokens (@, //, ~, %, =, ?, &) often leveraged in URL obfuscation, redirection, and token masquerading.</p>
+            </div>
+            <div class="feature-card">
+                <span class="feat-num">08</span>
+                <h4>Phishing Keywords</h4>
+                <p>Scans for security-sensitive trigger words: <code>login</code>, <code>verify</code>, <code>banking</code>, <code>secure</code>, <code>wallet</code>, <code>ebayisapi</code>.</p>
+            </div>
+            <div class="feature-card">
+                <span class="feat-num">09</span>
+                <h4>Subdomain Depth</h4>
+                <p>Parses the domain authority hierarchy. A depth exceeding 2 subdomains strongly indicates domain masquerading.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Security & Ethics Principles -->
+    <section class="about-section">
+        <div class="section-badge"><i class="fa-solid fa-shield-halved"></i> ETHICS & SECURITY POLICY</div>
+        <h2 class="section-heading">Operational Safety & Defensive Principles</h2>
+
+        <div class="security-rules-grid">
+            <div class="rule-box">
+                <div class="rule-icon text-cyan"><i class="fa-solid fa-ban"></i></div>
+                <h4>Zero-Execution Isolation</h4>
+                <p>
+                    Submitted URLs are parsed purely as text strings. The system never establishes TCP/IP connections, 
+                    resolves DNS, or downloads remote assets. This completely neutralizes SSRF, drive-by malware, and beaconing.
+                </p>
+            </div>
+            <div class="rule-box">
+                <div class="rule-icon text-blue"><i class="fa-solid fa-user-shield"></i></div>
+                <h4>User Privacy & Data Minimization</h4>
+                <p>
+                    Only the submitted inquiry string, timestamp, and resulting prediction are stored in SQLite. 
+                    No IP addresses, cookies, session identifiers, or personal user identifiers are collected or tracked.
+                </p>
+            </div>
+            <div class="rule-box">
+                <div class="rule-icon text-pink"><i class="fa-solid fa-triangle-exclamation"></i></div>
+                <h4>Probabilistic Model Nature</h4>
+                <p>
+                    Machine Learning models calculate statistical probabilities based on historical patterns. 
+                    While achieving high accuracy, they do not guarantee detection of every novel zero-day attack or sophisticated evasion.
+                </p>
+            </div>
+        </div>
+    </section>
+</div>
+{% endblock %}
+

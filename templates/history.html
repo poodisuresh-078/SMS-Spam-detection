@@ -1,0 +1,233 @@
+{% extends "base.html" %}
+
+{% block title %}Scan History & Audit Logs | CyberGuard ML{% endblock %}
+
+{% block content %}
+<div class="history-page-container">
+    <!-- Header -->
+    <div class="page-header space-between">
+        <div class="header-left">
+            <div class="header-icon icon-cyan">
+                <i class="fa-solid fa-clock-rotate-left"></i>
+            </div>
+            <div class="header-text">
+                <h1 class="page-title">Scan History & Threat Audit Logs</h1>
+                <p class="page-subtitle">
+                    Comprehensive log of all analyzed SMS messages and evaluated URLs stored securely in SQLite.
+                </p>
+            </div>
+        </div>
+
+        {% if scans %}
+            <div class="header-actions">
+                <button type="button" class="btn btn-danger btn-sm" id="openClearModalBtn">
+                    <i class="fa-solid fa-trash-can"></i> Clear All History
+                </button>
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- Quick Stats Bar -->
+    <div class="history-stats-bar">
+        <div class="h-stat-item">
+            <span class="h-stat-label">Total Audited Scans</span>
+            <span class="h-stat-num">{{ stats.total_scans }}</span>
+        </div>
+        <div class="h-stat-item">
+            <span class="h-stat-label">SMS Inquiries</span>
+            <span class="h-stat-num text-cyan">{{ stats.total_sms }}</span>
+        </div>
+        <div class="h-stat-item">
+            <span class="h-stat-label">URL Inquiries</span>
+            <span class="h-stat-num text-blue">{{ stats.total_urls }}</span>
+        </div>
+        <div class="h-stat-item">
+            <span class="h-stat-label">Flagged Threats</span>
+            <span class="h-stat-num text-danger">{{ stats.total_threats }}</span>
+        </div>
+        <div class="h-stat-item">
+            <span class="h-stat-label">Clean Communications</span>
+            <span class="h-stat-num text-success">{{ stats.total_safe }}</span>
+        </div>
+    </div>
+
+    <!-- Filters & Search Toolbar -->
+    <div class="filters-card">
+        <form method="GET" action="{{ url_for('history') }}" class="filters-form">
+            <!-- Type Tabs -->
+            <div class="type-filter-group">
+                <a href="{{ url_for('history', q=current_search) }}" 
+                   class="filter-pill {% if not current_type %}active{% endif %}">
+                    All Events ({{ stats.total_scans }})
+                </a>
+                <a href="{{ url_for('history', type='SMS', q=current_search) }}" 
+                   class="filter-pill {% if current_type == 'SMS' %}active{% endif %}">
+                    <i class="fa-solid fa-comment"></i> SMS ({{ stats.total_sms }})
+                </a>
+                <a href="{{ url_for('history', type='URL', q=current_search) }}" 
+                   class="filter-pill {% if current_type == 'URL' %}active{% endif %}">
+                    <i class="fa-solid fa-link"></i> URLs ({{ stats.total_urls }})
+                </a>
+            </div>
+
+            <!-- Search Field -->
+            <div class="search-input-group">
+                <input 
+                    type="text" 
+                    name="q" 
+                    class="form-control cyber-input-sm" 
+                    placeholder="Search content or predictions..." 
+                    value="{{ current_search }}">
+                {% if current_type %}
+                    <input type="hidden" name="type" value="{{ current_type }}">
+                {% endif %}
+                <button type="submit" class="btn btn-outline btn-sm">
+                    <i class="fa-solid fa-magnifying-glass"></i> Search
+                </button>
+                {% if current_search or current_type %}
+                    <a href="{{ url_for('history') }}" class="btn btn-link btn-sm text-muted">
+                        Reset Filters
+                    </a>
+                {% endif %}
+            </div>
+        </form>
+    </div>
+
+    <!-- Scans Table -->
+    {% if scans %}
+        <div class="table-card">
+            <div class="table-responsive">
+                <table class="cyber-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 70px;">ID</th>
+                            <th style="width: 100px;">Channel</th>
+                            <th>Submitted Text / Target URL</th>
+                            <th style="width: 160px;">ML Prediction</th>
+                            <th style="width: 110px;">Confidence</th>
+                            <th style="width: 110px;">Risk Level</th>
+                            <th style="width: 170px;">Timestamp</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for scan in scans %}
+                            <tr>
+                                <td class="font-mono text-muted">#{{ scan.id }}</td>
+                                <td>
+                                    {% if scan.scan_type == 'SMS' %}
+                                        <span class="badge-type badge-sms"><i class="fa-solid fa-comment"></i> SMS</span>
+                                    {% else %}
+                                        <span class="badge-type badge-url"><i class="fa-solid fa-link"></i> URL</span>
+                                    {% endif %}
+                                </td>
+                                <td class="content-cell">
+                                    <div class="content-preview font-mono" title="{{ scan.input_content }}">
+                                        {{ scan.input_content[:85] }}{% if scan.input_content|length > 85 %}...{% endif %}
+                                    </div>
+                                </td>
+                                <td>
+                                    {% if scan.is_threat %}
+                                        <span class="badge-status badge-threat">
+                                            <i class="fa-solid fa-triangle-exclamation"></i> {{ scan.prediction }}
+                                        </span>
+                                    {% else %}
+                                        <span class="badge-status badge-safe">
+                                            <i class="fa-solid fa-circle-check"></i> {{ scan.prediction }}
+                                        </span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <div class="confidence-pill">
+                                        <span class="conf-num">{{ scan.confidence }}%</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="badge-risk risk-{{ (scan.risk_level or 'Low')|lower }}">
+                                        {{ scan.risk_level or 'Normal' }}
+                                    </span>
+                                </td>
+                                <td class="time-cell text-muted font-mono">
+                                    {{ scan.created_at }}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    {% else %}
+        <div class="empty-state">
+            <div class="empty-icon"><i class="fa-solid fa-clock-rotate-left"></i></div>
+            <h3>No scan records found</h3>
+            <p>
+                {% if current_search or current_type %}
+                    No records matched your search query or filter criteria.
+                {% else %}
+                    You have not performed any scans yet. Run your first analysis now!
+                {% endif %}
+            </p>
+            <div class="empty-actions">
+                {% if current_search or current_type %}
+                    <a href="{{ url_for('history') }}" class="btn btn-outline btn-sm">Clear Active Filters</a>
+                {% endif %}
+                <a href="{{ url_for('sms_detection') }}" class="btn btn-primary btn-sm">Analyze SMS</a>
+                <a href="{{ url_for('url_detection') }}" class="btn btn-secondary btn-sm">Scan URL</a>
+            </div>
+        </div>
+    {% endif %}
+</div>
+
+<!-- Clear History Confirmation Modal -->
+<div class="cyber-modal" id="clearModal" style="display: none;">
+    <div class="modal-backdrop" id="modalBackdrop"></div>
+    <div class="modal-dialog">
+        <div class="modal-header">
+            <div class="modal-icon text-danger"><i class="fa-solid fa-triangle-exclamation"></i></div>
+            <h3 class="modal-title">Confirm History Purge</h3>
+        </div>
+        <div class="modal-body">
+            <p>
+                Are you sure you want to permanently clear all scan records from the SQLite database?
+            </p>
+            <p class="text-muted text-sm">
+                This will reset all historical audit logs, statistical metrics, and stored predictions. This action cannot be undone.
+            </p>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-outline" id="closeModalBtn">Cancel</button>
+            <form method="POST" action="{{ url_for('clear_history') }}">
+                <button type="submit" class="btn btn-danger">
+                    <i class="fa-solid fa-trash-can"></i> Yes, Clear All Scans
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    // Modal toggle script
+    const clearBtn = document.getElementById('openClearModalBtn');
+    const modal = document.getElementById('clearModal');
+    const backdrop = document.getElementById('modalBackdrop');
+    const closeBtn = document.getElementById('closeModalBtn');
+
+    if (clearBtn && modal) {
+        clearBtn.addEventListener('click', () => {
+            modal.style.display = 'flex';
+        });
+    }
+    if (closeBtn && modal) {
+        closeBtn.addEventListener('click', () => {
+            modal.style.display = 'none';
+        });
+    }
+    if (backdrop && modal) {
+        backdrop.addEventListener('click', () => {
+            modal.style.display = 'none';
+        });
+    }
+</script>
+{% endblock %}
+
