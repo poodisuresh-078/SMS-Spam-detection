@@ -307,7 +307,7 @@ The system is intended as a screening tool and cannot guarantee that every malic
 
 **Poodi Suresh Reddy**
 
-GitHub Profile: https://github.com/poodisuresh-078
+GitHub Profile:poodisuresh-078
 ## 📜 License
 
 This project can be distributed under the MIT License if an appropriate LICENSE file is added to the repository.
