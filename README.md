@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # 🛡️ SMS Spam Detection & Malicious URL Classification Using Machine Learning
 
 [![Python Version](https://img.shields.io/badge/Python-3.10%2B-blue.svg)](https://www.python.org/)
@@ -283,3 +284,7 @@ http://127.0.0.1:5000
 ## 📄 License
 This project is open-source under the MIT License. Developed for educational, research, and portfolio demonstration purposes.
 
+=======
+# SMS-Spam-detection
+SMS SPAM DETECTION &amp; URL MALICIOUS  CLASSIFICATION
+>>>>>>> b42b161d80b439fa7372701b939335d373b88bd9
